@@ -21,7 +21,8 @@ const WISTIA_VIDEO_ID = 'zx3wmw2c10';
 const WISTIA_ASPECT_RATIO = '1.7777777777777777';
 
 const VideoPlayer: React.FC = () => {
-    // Fix: Use React.useEffect to align with the namespace import.
+    const playerRef = React.useRef<HTMLElement>(null);
+
     React.useEffect(() => {
         const addElement = (tagName: 'script' | 'style', id: string, innerHTML?: string, attributes?: Record<string, string>) => {
             if (document.getElementById(id)) return null;
@@ -39,7 +40,8 @@ const VideoPlayer: React.FC = () => {
             return element;
         };
 
-        const embedScript = addElement('script', `wistia-embed-script-${WISTIA_VIDEO_ID}`, undefined, { src: `https://fast.wistia.com/embed/${WISTIA_VIDEO_ID}.js`, async: 'true', type: 'module' });
+        // Load the main Wistia player script
+        const wistiaScript = addElement('script', 'wistia-player-script', undefined, { src: 'https://fast.wistia.com/player.js', async: 'true' });
         
         const styleContent = `
             wistia-player[media-id='${WISTIA_VIDEO_ID}']:not(:defined) { 
@@ -51,17 +53,21 @@ const VideoPlayer: React.FC = () => {
         `;
         const wistiaStyle = addElement('style', `wistia-style-${WISTIA_VIDEO_ID}`, styleContent);
 
+        if (playerRef.current) {
+            playerRef.current.setAttribute('media-id', WISTIA_VIDEO_ID);
+            playerRef.current.setAttribute('aspect', WISTIA_ASPECT_RATIO);
+        }
+
         // Cleanup function to remove elements on component unmount
         return () => {
-            embedScript?.remove();
+            wistiaScript?.remove();
             wistiaStyle?.remove();
         };
     }, []);
 
     return (
         <div className="relative w-full max-w-xl mx-auto rounded-2xl overflow-hidden shadow-2xl ring-1 ring-black/5">
-            {/* React converts camelCase props like 'mediaId' to kebab-case attributes ('media-id') for custom elements. */}
-            <wistia-player mediaId={WISTIA_VIDEO_ID} aspect={WISTIA_ASPECT_RATIO}></wistia-player>
+            <wistia-player ref={playerRef}></wistia-player>
         </div>
     );
 };
