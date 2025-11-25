@@ -2,23 +2,6 @@
 import * as React from 'react';
 
 const TireFinder: React.FC = () => {
-    // Fix: Use React.useEffect to align with the namespace import.
-    React.useEffect(() => {
-        const script = document.createElement('script');
-        script.src = "https://tireflow.ezytire.com/6057/1/Script/Client.js";
-        script.async = true;
-
-        const container = document.getElementById('tire-flow-responsive-container');
-        if (container) {
-            container.appendChild(script);
-        }
-        
-        return () => {
-            if (container && container.contains(script)) {
-                container.removeChild(script);
-            }
-        };
-    }, []);
 
     return (
         <section id="finder" className="bg-gray-100 py-20">
